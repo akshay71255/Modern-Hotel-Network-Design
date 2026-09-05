@@ -1,0 +1,83 @@
+enable
+configure terminal
+hostname F2-router
+
+! --- WAN Interfaces (Serial Connections) ---
+interface s0/2/1
+ description Link to R1 (Floor 1)
+ ip address 10.10.10.10 255.255.255.252
+ no shutdown
+exit
+
+interface s0/2/0
+ description Link to R3 (Floor 3)
+ ip address 10.10.10.1 255.255.255.252
+ clock rate 64000
+ no shutdown
+exit
+
+! --- LAN Trunk Interface & Subinterfaces ---
+interface f0/0
+ description Trunk to Floor 2 Switch
+ no shutdown
+exit
+
+! VLAN 50: Finance
+interface f0/0.50
+ encapsulation dot1Q 50
+ ip address 192.168.5.1 255.255.255.0
+exit
+
+ip dhcp pool Finance
+ network 192.168.5.0 255.255.255.0
+ default-router 192.168.5.1
+ dns-server 8.8.8.8
+exit
+
+
+! VLAN 30: HR
+interface f0/0.40
+ encapsulation dot1Q 40
+ ip address 192.168.4.1 255.255.255.0
+exit
+
+ip dhcp pool HR
+ network 192.168.4.0 255.255.255.0
+ default-router 192.168.4.1
+ dns-server 8.8.8.8
+exit
+
+
+! VLAN 310: Sales
+interface f0/0.30
+ encapsulation dot1Q 30
+ ip address 192.168.3.1 255.255.255.0
+exit
+
+ip dhcp pool Sales
+ network 192.168.3.0 255.255.255.0
+ default-router 192.168.3.1
+ dns-server 8.8.8.8
+exit
+
+
+! --- OSPF Dynamic Routing ---
+router ospf 20
+ network 10.10.10.0 0.0.0.3 area 0
+ network 10.10.10.8 0.0.0.3 area 0
+ network 192.168.5.0 0.0.0.255 area 0
+ network 192.168.4.0 0.0.0.255 area 0
+ network 192.168.3.0 0.0.0.255 area 0
+exit
+
+! --- Security & SSH Configuration ---
+ip domain-name Akshay
+crypto key generate rsa general-keys modulus 1024
+username Akshay password <password>
+
+line vty 0 15
+ transport input ssh
+ login local
+exit
+
+do wr

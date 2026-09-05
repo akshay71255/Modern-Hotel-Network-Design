@@ -1,0 +1,70 @@
+enable
+configure terminal
+hostname F3-router
+
+! --- WAN Interfaces (Serial Connections) ---
+interface Serial0/2/0
+ description Link to R2 (Floor 2)
+ ip address 10.10.10.2 255.255.255.252
+ clock rate 64000
+ no shutdown
+exit
+
+interface Serial0/2/1
+ description Link to R1 (Floor 1)
+ ip address 10.10.10.6 255.255.255.252
+ clock rate 64000
+ no shutdown
+exit
+
+! --- LAN Trunk Interface & Subinterfaces ---
+interface f0/0
+ no shutdown
+exit
+
+! VLAN 20: Admin
+interface f0/0.20
+ encapsulation dot1Q 20
+ ip address 192.168.2.1 255.255.255.0
+exit
+
+ip dhcp pool Admin
+ network 192.168.2.0 255.255.255.0
+ default-router 192.168.2.1
+ dns-server 8.8.8.8
+exit
+
+
+! VLAN 10: IT
+interface f0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.1.1 255.255.255.0
+exit
+
+ip dhcp pool IT
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.1.1
+ dns-server 8.8.8.8
+exit
+
+
+
+! --- OSPF Dynamic Routing ---
+router ospf 30
+ network 10.10.10.4 0.0.0.3 area 0
+ network 10.10.10.0 0.0.0.3 area 0
+ network 192.168.2.0 0.0.0.255 area 0
+ network 192.168.1.0 0.0.0.255 area 0
+exit
+
+! --- Security & SSH Configuration ---
+ip domain-name Akshay
+crypto key generate rsa general-keys modulus 1024
+username Akshay password <password>
+
+line vty 0 15
+ transport input ssh
+ login local
+exit
+
+do wr
