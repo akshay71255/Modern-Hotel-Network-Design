@@ -1,0 +1,41 @@
+enable
+configure terminal
+hostname F3-switch
+
+! --- Create VLANs ---
+vlan 10
+ name IT
+vlan 20
+ name Admin
+exit
+
+! --- Trunk Port (Connected to Router 3 - f0/0) ---
+interface f0/1
+ description Trunk Link to Router 3
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20
+ no shutdown
+exit
+
+! --- Access Ports Assignment ---
+! Requirement 12: Test-PC connected to FastEthernet0/2 in IT Department
+interface f0/2
+ switchport mode access
+ switchport access vlan 10
+ no shutdown
+exit
+
+! Remaining IT Department Ports (VLAN 10)
+interface range f0/3
+ switchport mode access
+ switchport access vlan 10
+ no shutdown
+exit
+
+! Admin Department Ports (VLAN 20)
+interface range f0/4-5
+ switchport mode access
+ switchport access vlan 20
+ no shutdown
+exit
+do wr

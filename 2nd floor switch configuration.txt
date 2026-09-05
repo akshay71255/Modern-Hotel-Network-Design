@@ -1,0 +1,44 @@
+enable
+configure terminal
+hostname F2-switch
+
+! --- Create VLANs ---
+vlan 310
+ name Sales
+vlan 30
+ name HR
+vlan 50
+ name Finance
+exit
+
+! --- Trunk Port (Connected to Router 2 - f0/0) ---
+interface f0/1
+ description Trunk Link to Router 2
+ switchport mode trunk
+ switchport trunk allowed vlan 310,30,50
+ no shutdown
+exit
+
+! --- Access Ports Assignment ---
+! Finance Ports (VLAN 50)
+interface range f0/2-3
+ switchport mode access
+ switchport access vlan 50
+ no shutdown
+exit
+
+! HR Ports (VLAN 30)
+interface range f0/4-5
+ switchport mode access
+ switchport access vlan 30
+ no shutdown
+exit
+
+! Sales (VLAN 310)
+interface range f0/6-7
+ switchport mode access
+ switchport access vlan 310
+ no shutdown
+exit
+
+do wr
