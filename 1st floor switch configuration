@@ -1,0 +1,44 @@
+enable
+configure terminal
+hostname F1-switch
+
+! --- Create VLANs ---
+vlan 60
+ name Logistics
+vlan 70
+ name Store
+vlan 80
+ name Reception
+exit
+
+! --- Trunk Port (Connected to Router 1 - f0/0) ---
+interface f0/1
+ description Trunk Link to Router 1
+ switchport mode trunk
+ switchport trunk allowed vlan 60,70,80
+ no shutdown
+exit
+
+! --- Access Ports Assignment ---
+! Reception Ports (VLAN 80)
+interface range f0/6-7
+ switchport mode access
+ switchport access vlan 80
+ no shutdown
+exit
+
+! Store Ports (VLAN 70)
+interface range f0/4-5
+ switchport mode access
+ switchport access vlan 70
+ no shutdown
+exit
+
+! Logistics Ports (VLAN 60)
+interface range f0/2-3
+ switchport mode access
+ switchport access vlan 60
+ no shutdown
+exit
+
+do wr
